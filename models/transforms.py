@@ -15,10 +15,28 @@ def random_crop(s_tensor):
     # print ( result.size() )
     return result 
 
+def rectangular_crop(s_tensor):
+    assert( s_tensor.size(2) >= s_tensor.size(1)*5)
+    ran = 100
+    result = s_tensor[:,:,ran:ran+s_tensor.size(1)*5]
+    # print ( result.size() )
+    return result 
+
+
+
 def to_spectrogram_compose(sr):
     return Compose([
         MelSpectrogram(sr,n_mels=64),
         AmplitudeToDB(),
         random_crop,
+        Normalize([-56],[20])
+    ])
+
+
+def to_spectrogram_compose_norandom(sr):
+    return Compose([
+        MelSpectrogram(sr,n_mels=64),
+        AmplitudeToDB(),
+        rectangular_crop,
         Normalize([-56],[20])
     ])

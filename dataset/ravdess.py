@@ -105,7 +105,7 @@ class Ravdess(Dataset):
         }
 
 
-        bench = Benchmark("ravdess",model_name, results )
+        bench = Benchmark("ravdess",model_name, results,self.train )
         if write: 
             if postfix:
                 bench.write(postfix)
