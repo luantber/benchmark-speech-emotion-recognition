@@ -1,0 +1,3 @@
+Name,Training?,accuracy,precision,f1-score,Timestamp
+cnn1D,False,0.2326,0.2246,0.1351,2020-07-28 20:22:57.816312
+cnn1D,True,0.2717,0.2524,0.1531,2020-07-28 20:25:35.678557

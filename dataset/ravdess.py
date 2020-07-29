@@ -41,16 +41,30 @@ class Ravdess(Dataset):
         else:
             self.dataset = test
 
-        self.transform = transform 
+        
+        self.audios = []
+        self.srs = []
+        
+        for idx in range(len( self.dataset)):
+            audio_path = os.path.join( self.root_dir , self.dataset.loc[ idx , 'file'] )
+            audio, sr = torchaudio.load(audio_path)
+            # print ( audio.size() )
+            audio = audio.mean(0,True) #to_mono
+
+            self.audios.append(audio)
+            self.srs.append(sr)
+
+        self.transform = transform
+
+
     
     def __len__(self):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        audio_path = os.path.join( self.dataset.loc[ idx , 'file'] )
-        audio, sr = torchaudio.load(audio_path)
-        # print ( audio.size() )
-        audio = audio.mean(0,True) #to_mono
+        sr = self.srs[idx]
+        audio = self.audios[idx]
+        
         
         emotion = self.dataset.loc[ idx , 'emotion'] - 1 # ( 1 , 2, 3 , ... ) -> (0 , 1 , 2 ...)
 
@@ -63,7 +77,8 @@ class Ravdess(Dataset):
 
     def create_csv(self): #make private
         files = glob.glob(os.path.join(self.root_dir , self.folder_audios )  + '/**/*.wav', recursive=True)
-    
+        print(self.root_dir)
+        print(  os.path.join(self.root_dir,self.csv_file) )
         with open(  os.path.join(self.root_dir,self.csv_file) , mode='w') as new_csv_file:
             new_csv_file = csv.writer(new_csv_file, delimiter=',')
             new_csv_file.writerow( [
@@ -84,7 +99,7 @@ class Ravdess(Dataset):
     def benchmark(self, model, model_name, batch_size = 32 , gpu = False , write = True , print_matrix = True, postfix=None):
         
         
-        data_test = DataLoader( Ravdess(train=self.train,transform=self.transform) , batch_size=batch_size )
+        data_test = DataLoader( Ravdess(root_dir=self.root_dir,train=self.train,transform=self.transform) , batch_size=batch_size )
         
         matrix = np.zeros((self.num_labels,self.num_labels))
         with torch.no_grad() :

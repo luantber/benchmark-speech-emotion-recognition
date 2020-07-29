@@ -1,5 +1,5 @@
 from torchvision.transforms import Compose, Normalize
-from torchaudio.transforms import MelSpectrogram, AmplitudeToDB
+from torchaudio.transforms import MelSpectrogram, AmplitudeToDB, MFCC
 import torch 
 
 
@@ -23,13 +23,13 @@ def rectangular_crop(s_tensor):
     return result 
 
 
-
+#sr : Sampling Rate
 def to_spectrogram_compose(sr):
     return Compose([
         MelSpectrogram(sr,n_mels=64),
         AmplitudeToDB(),
         random_crop,
-        Normalize([-56],[20])
+        Normalize([-56],[20]) #mean, std
     ])
 
 
@@ -39,4 +39,20 @@ def to_spectrogram_compose_norandom(sr):
         AmplitudeToDB(),
         rectangular_crop,
         Normalize([-56],[20])
+    ])
+
+
+def to_mfcc_compose_random(sr):
+    return Compose([
+        MFCC( sr  ),
+        random_crop,
+        Normalize([-19],[103])
+    ])
+
+
+def to_mfcc_compose(sr):
+    return Compose([
+        MFCC( sr  ),
+        rectangular_crop,
+        Normalize([-19],[103])
     ])
