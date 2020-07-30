@@ -8,7 +8,7 @@ import os
 import csv
 from . import metrics
 from .benchmark import Benchmark
-
+import time 
 import torch 
 class Ravdess(Dataset):
     def __init__(self,
@@ -62,9 +62,11 @@ class Ravdess(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, idx):
+
         sr = self.srs[idx]
         audio = self.audios[idx]
         
+
         
         emotion = self.dataset.loc[ idx , 'emotion'] - 1 # ( 1 , 2, 3 , ... ) -> (0 , 1 , 2 ...)
 
@@ -72,7 +74,7 @@ class Ravdess(Dataset):
         if self.transform:
 
             audio = self.transform(sr)(audio)
-            
+    
         return audio, emotion 
 
     def create_csv(self): #make private

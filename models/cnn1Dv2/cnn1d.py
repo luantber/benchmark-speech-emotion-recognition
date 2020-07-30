@@ -7,26 +7,23 @@ from torch.optim import Adam
 import torch.nn.functional as F
 
 
-class CNN1D(LightningModule):
+class CNN1Dv2(LightningModule):
     def __init__(self):
         super().__init__()
         #input 1,40,200
 
-        self.c1 = nn.Conv1d(1,64,(40,5)) 
-        self.c2 = nn.Conv1d(64,64,5) 
-        self.pool = nn.MaxPool1d(5,4)
-        self.f1 = nn.Linear(64*44,8)
+        self.c1 = nn.Conv1d(1,64,(5,200)) 
+        # self.c2 = nn.Conv1d(64,64,5) 
+        # self.pool = nn.MaxPool1d(5,4)
+        self.f1 = nn.Linear(64*36,8)
         
         
     def forward(self,x):  #40x200
-        x = F.relu(self.c1(x)) #1x196 #-4
+        x = F.relu(self.c1(x)) #64x36x1 #-4
         
-        x = x.view(-1,64,196)
-        x = self.pool(x) #48 #-1 -> /4
-
-        x = F.relu(self.c2(x)) #44 #-3
-        # print(x.size())
-        x = x.view(-1,64*44) #
+        x = x.view(-1,64,36) 
+        
+        x = x.view(-1,64*36) #
         x = self.f1(x)
     
         return x
