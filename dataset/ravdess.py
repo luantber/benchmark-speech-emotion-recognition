@@ -10,11 +10,17 @@ from . import metrics
 from .benchmark import Benchmark
 import time 
 import torch 
+from concurrent import futures
+
+
 class Ravdess(Dataset):
     def __init__(self,
             root_dir="dataset/ravdess",
             folder_audios="Audio_Speech_Actors_01-24" , 
             csv_file="ravdess_dataset.csv",
+            aug_file="ravdess_dataset_aug",
+            use_aug = True,
+            reset_aug = False,
             train=True,
             transform=None):
 
@@ -24,9 +30,18 @@ class Ravdess(Dataset):
         self.train = train
         self.transform = transform
         self.num_labels= 8
+
+        self.train_string_aug = "train.pk" if train else "test.pk"
+
+        self.use_aug = use_aug
+        self.aug_file = aug_file
+        self.reset_aug = reset_aug
+
+
         if not os.path.isfile(os.path.join(self.root_dir , self.csv_file )):
             print("Creando CSV")
             self.create_csv()
+
         
         self.dataset = pd.read_csv(os.path.join(self.root_dir , self.csv_file ) )
         
@@ -41,38 +56,45 @@ class Ravdess(Dataset):
         else:
             self.dataset = test
 
-        
         self.audios = []
         self.srs = []
+        self.emotions = []
+
+        if self.use_aug:
+            if self.reset_aug or not os.path.isfile(os.path.join(self.root_dir , self.aug_file + self.train_string_aug )):
+                print("Augment File")
+                self.create_aug_file(os.path.join(self.root_dir , self.aug_file + self.train_string_aug ))
+            
+            self.audios,self.srs,self.emotions = torch.load(os.path.join(self.root_dir , self.aug_file+ self.train_string_aug ))
+                
+
+        else:
+            
+            for idx in range(len( self.dataset)):
+                audio_path = os.path.join( self.root_dir , self.dataset.loc[ idx , 'file'] )
+                audio, sr = torchaudio.load(audio_path)
+                emotion = self.dataset.loc[ idx , 'emotion'] - 1 # ( 1 , 2, 3 , ... ) -> (0 , 1 , 2 ...)
+                # print ( audio.size() )
+                audio = audio.mean(0,True) #to_mono
+
+                self.audios.append(audio)
+                self.srs.append(sr)
+                self.emotions.append(emotion)
+
+
         
-        for idx in range(len( self.dataset)):
-            audio_path = os.path.join( self.root_dir , self.dataset.loc[ idx , 'file'] )
-            audio, sr = torchaudio.load(audio_path)
-            # print ( audio.size() )
-            audio = audio.mean(0,True) #to_mono
-
-            self.audios.append(audio)
-            self.srs.append(sr)
-
-        self.transform = transform
-
 
     
     def __len__(self):
-        return len(self.dataset)
+        return len(self.audios)
 
     def __getitem__(self, idx):
 
         sr = self.srs[idx]
         audio = self.audios[idx]
-        
+        emotion = self.emotions[idx]
 
-        
-        emotion = self.dataset.loc[ idx , 'emotion'] - 1 # ( 1 , 2, 3 , ... ) -> (0 , 1 , 2 ...)
-
-        # print ( audio.size() )
-        if self.transform:
-
+        if self.transform and not self.use_aug:
             audio = self.transform(sr)(audio)
     
         return audio, emotion 
@@ -98,6 +120,66 @@ class Ravdess(Dataset):
                 features = filename[:-4].split('-')
                 new_csv_file.writerow( [f] + features )
 
+    def create_aug_file(self,ruta):
+        '''
+            Genera una lista de ondas del mismo tamano size_segs
+            tensor: 1xN 
+            sr: Sampling Rate
+
+        '''
+        def window_wave( tensor , sr , size_segs=1 , stride_segs=0.25):
+            nuevos_audios=[]
+
+            size = size_segs * sr
+            stride = int(stride_segs * sr)
+
+            i=0
+            while (i+size < tensor.shape[1]):
+                nuevos_audios.append(tensor[:,i:i+size])
+                i+=stride 
+
+            nuevos_audios.append(tensor[:,tensor.shape[1]-size:tensor.shape[1]])
+            return nuevos_audios
+
+        audios = []
+        srs = []
+        emotions = []
+        for idx in range(len( self.dataset)):
+            audio_path = os.path.join( self.root_dir , self.dataset.loc[ idx , 'file'] )
+            audio, sr = torchaudio.load(audio_path)
+            emotion = self.dataset.loc[ idx , 'emotion'] - 1 # ( 1 , 2, 3 , ... ) -> (0 , 1 , 2 ...)
+            # print ( audio.size() )
+            audio = audio.mean(0,True) #to_mono
+
+            audios.append(audio)
+            srs.append(sr)
+            emotions.append(emotion)
+
+        t1 = time.time()
+
+        new_audios = []
+        new_srs = []
+        new_emotions =[]
+
+        for idx in range(len(audios)):
+            audio = audios[idx]
+            recortados = window_wave(audio,srs[idx])
+            
+            if self.transform:
+                new_audios+= [ self.transform(srs[idx])(r) for r in recortados]
+            else:
+                new_audios+= [ recortados]
+                
+            new_srs += [srs[idx]]*len(recortados)
+            new_emotions += [emotions[idx]]*len(recortados)
+        
+        assert ( len(new_audios) == len(new_emotions) == len(new_srs))
+        torch.save(  (new_audios,new_srs,new_emotions) , ruta   )
+        print("time:", time.time() - t1 )
+
+    '''
+        Retorna un objeto Benchmark 
+    '''
     def benchmark(self, model, model_name, batch_size = 32 , gpu = False , write = True , print_matrix = True, postfix=None):
         
         
