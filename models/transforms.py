@@ -22,6 +22,8 @@ def rectangular_crop(s_tensor):
     # print ( result.size() )
     return result 
 
+def rectangular_cropv2(tensor,sr=48000):
+    return tensor[ sr:2*sr ]
 
 #sr : Sampling Rate
 def to_spectrogram_compose(sr):
@@ -44,16 +46,16 @@ def to_spectrogram_compose_norandom(sr):
 
 def to_mfcc_crop_compose_random(sr):
     return Compose([
-        MFCC( sr  ),
         random_crop,
+        MFCC( sr  ),
         Normalize([-19],[103])
     ])
 
 
 def to_mfcc_crop_compose(sr):
     return Compose([
+        rectangular_cropv2,
         MFCC( sr  ),
-        rectangular_crop,
         Normalize([-19],[103])
     ])
 

@@ -31,7 +31,7 @@ class CNN1Dv2(LightningModule):
     def train_dataloader(self):
         data_transform = to_mfcc_compose
         ravdess_train = Ravdess( "../../dataset/ravdess", train=True , transform = data_transform )
-        return DataLoader(ravdess_train, batch_size=128, num_workers=4,pin_memory=True)
+        return DataLoader(ravdess_train, batch_size=256, num_workers=4,pin_memory=True)
 
     def configure_optimizers(self):
         return Adam(self.parameters())

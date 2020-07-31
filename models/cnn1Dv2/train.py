@@ -12,6 +12,6 @@ model = CNN1Dv2()
 
 
 # t = Trainer(gpus=1,max_epochs=300,resume_from_checkpoint="lightning_logs/version_19/checkpoints/epoch=80.ckpt")
-t = Trainer(gpus=1,max_epochs=50,profiler=True)
+t = Trainer(gpus=1,max_epochs=150,profiler=True)
 t.fit(model)
 
