@@ -42,7 +42,7 @@ def to_spectrogram_compose_norandom(sr):
     ])
 
 
-def to_mfcc_compose_random(sr):
+def to_mfcc_crop_compose_random(sr):
     return Compose([
         MFCC( sr  ),
         random_crop,
@@ -50,9 +50,15 @@ def to_mfcc_compose_random(sr):
     ])
 
 
-def to_mfcc_compose(sr):
+def to_mfcc_crop_compose(sr):
     return Compose([
         MFCC( sr  ),
         rectangular_crop,
+        Normalize([-19],[103])
+    ])
+
+def to_mfcc_compose(sr):
+    return Compose([
+        MFCC( sr  ),
         Normalize([-19],[103])
     ])
