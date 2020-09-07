@@ -28,3 +28,13 @@ This work aims to compare in a fair way those models using the same benchamrks f
 |cnn_rect_fine       |False   |0.6701  |0.6672   |0.6645  |2020-07-13 17:35:14.917757 |
 |cnn_rect_fine_norand|False   |0.6354  |0.6296   |0.6266  |2020-07-27 16:10:54.448795 |
 |cnn_rect_fine_norand|False   |0.6354  |0.6296   |0.6266  |2020-07-27 16:24:29.332543 |
+
+## Requirements
+- python3
+- cuda 10.0
+- torch
+- sklearn
+- torchaudio
+- numpy
+- pandas
+- pytorch_lightning
