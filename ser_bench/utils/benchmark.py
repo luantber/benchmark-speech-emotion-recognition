@@ -1,7 +1,7 @@
 from ser_bench.utils import metrics
 
 
-class Benchmark(object):
+class Benchmark():
     """
     docstring
     """
