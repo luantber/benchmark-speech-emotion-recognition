@@ -14,7 +14,7 @@ class RavdessDataset(Dataset):
     Ravdess Dataset
     """
 
-    def __init__(self, dataset_dir="datasets/ravdess", folder_name='Audio_Speech_Actors_01-24', mode="train", transforms=None):
+    def __init__(self, dataset_dir="datasets/ravdess", folder_name='Audio_Speech_Actors_01-24', mode="train", transform=None):
         """
         Abre la carpeta dataset_dir y busca si existen los archivos
             mode: train or test
@@ -22,6 +22,7 @@ class RavdessDataset(Dataset):
         self.mode = mode
         self.folder_name = folder_name
         self.dataset_dir = dataset_dir
+        self.transform = transform
 
         """
         Revisar posibles errores
@@ -54,6 +55,8 @@ class RavdessDataset(Dataset):
     def __getitem__(self, idx):
         audio = self.data.at[idx, "file"]
         emotion = self.data.at[idx, "emotion"]
+        if self.transform:
+            return self.transform(audio), emotion
         return audio, emotion
 
     def __len__(self):
@@ -88,6 +91,7 @@ class RavdessDataset(Dataset):
             for f in train_wav:
                 filename = path.basename(f)
                 features = filename[:-4].split('-')
+                features = [int(f)-1 for f in features]
                 new_csv_file.writerow([f] + features)
 
         """
@@ -108,4 +112,5 @@ class RavdessDataset(Dataset):
             for f in test_wav:
                 filename = path.basename(f)
                 features = filename[:-4].split('-')
+                features = [int(f)-1 for f in features]
                 new_csv_file.writerow([f] + features)
