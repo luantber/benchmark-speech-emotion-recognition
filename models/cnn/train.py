@@ -23,7 +23,9 @@ test_loader = DataLoader(RavdessDataset(
 model = CNNModel()
 
 trainer = pl.Trainer(
-    gpus=1, default_root_dir="models/cnn", row_log_interval=10,max_epochs=5)
-trainer.fit(model, train_loader, test_loader)
+    gpus=1, default_root_dir="models/cnn",
+    # resume_from_checkpoint='models/cnn/lightning_logs/version_0/checkpoints/epoch=23.ckpt',
+    max_epochs=5)
 
-# trainer.fit(model, train_loader)
+
+trainer.fit(model, train_loader, test_loader)
