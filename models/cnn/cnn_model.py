@@ -3,6 +3,7 @@ from pytorch_lightning import LightningModule
 import torch
 from torch import nn
 import torch.nn.functional as F
+from pytorch_lightning.metrics.functional import accuracy
 
 
 class CNNModel(LightningModule):
@@ -43,15 +44,23 @@ class CNNModel(LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
+
+        _, predicted = torch.max(y_hat, 1)  # max
+        acc = accuracy(predicted, y)
+
         loss = F.cross_entropy(y_hat, y)
-        result = pl.TrainResult(minimize=loss)
-        result.log('train_loss', loss)
-        return result
+
+        logs = {'train_loss': loss, 'train_acc': acc}
+        return {'loss': loss, 'log': logs}
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
+
+        _, predicted = torch.max(y_hat, 1)  # max
+        acc = accuracy(predicted, y)
+
         loss = F.cross_entropy(y_hat, y)
-        result = pl.EvalResult()
-        result.log('val_loss', loss)
-        return result
+
+        logs = {'val_loss': loss, 'val_acc': acc}
+        return {'loss': loss, 'log': logs}
