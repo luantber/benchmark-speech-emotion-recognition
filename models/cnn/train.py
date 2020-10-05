@@ -2,17 +2,7 @@ from torch.utils.data import DataLoader
 from ser_bench.datasets.ravdess import RavdessDataset
 from models.cnn.cnn_model import CNNModel
 import pytorch_lightning as pl
-import torchaudio
-import torch
-
-
-def preprocesar_audio(wav_file):
-    audio, sr = torchaudio.load(wav_file)
-
-    audio = audio.mean(0, True)
-    spec = torchaudio.transforms.MelSpectrogram()(audio)
-    return spec[:, :, :128]
-
+from prepro import preprocesar_audio
 
 train_loader = DataLoader(RavdessDataset(
     mode="train", transform=preprocesar_audio), batch_size=64, num_workers=4)
