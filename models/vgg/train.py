@@ -1,9 +1,9 @@
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import DataLoader
 from ser_bench.datasets.ravdess import RavdessDataset
-from models.cnn.cnn_model import CNNModel
+from models.vgg.cnn_model import CNNModel
 import pytorch_lightning as pl
-from models.cnn.prepro import preprocesar_audio
+from models.vgg.prepro import preprocesar_audio
 
 train_loader = DataLoader(RavdessDataset(
     mode="train", transform=preprocesar_audio), batch_size=64, num_workers=4)
@@ -26,7 +26,7 @@ checkpoint_callback = ModelCheckpoint(
 
 
 trainer = pl.Trainer(
-    gpus=1, default_root_dir="models/cnn",
+    gpus=1, default_root_dir="models/vgg",
     # resume_from_checkpoint='models/cnn/lightning_logs/version_0/checkpoints/epoch=23.ckpt',
     max_epochs=50,
     # row_log_interval=10,

@@ -12,11 +12,12 @@ class CNNModel(LightningModule):
 
         self.c1 = nn.Conv2d(1, 32, 3)
         self.c2 = nn.Conv2d(32, 32, 4)
-        self.c3 = nn.Conv2d(32, 32, 3)
-        self.f1 = nn.Linear(32*14*14, 4096)
-        self.f2 = nn.Linear(4096, 8)
+
+        self.f1 = nn.Linear(32*20*20, 2048)
+        self.f2 = nn.Linear(2048, 8)
+
         self.pool = nn.MaxPool2d((2, 2))
-        self.pool2 = nn.MaxPool2d((2, 2))
+        self.pool2 = nn.MaxPool2d((3, 3))
 
     def forward(self, x):  # 128x128
         x = F.relu(self.c1(x))  # 126x126 #-2
@@ -25,13 +26,11 @@ class CNNModel(LightningModule):
         # print(x.size())
 
         x = F.relu(self.c2(x))  # 60x60 #-3
-        x = self.pool(x)  # 30x30 #/2
+        x = self.pool2(x)  # 20x20 #/3
 
-        x = F.relu(self.c3(x))  # 28x28 #-2
-        x = self.pool2(x)  # 14x14
-        # print(x.size())
+        # print("helooo", x.size())
 
-        x = x.view(-1, 32*14*14)
+        x = x.view(-1, 32*20*20)
         x = F.relu(self.f1(x))
         x = self.f2(x)
 
