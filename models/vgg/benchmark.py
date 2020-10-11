@@ -1,6 +1,6 @@
 from models.vgg.cnn_model import CNNModel
-from ser_bench.challenges.v1 import ravdess_bench
 from models.vgg.prepro import preprocesar_audio
+from ser_bench.challenges.v1 import ravdess_bench
 
 
 model = CNNModel.load_from_checkpoint(

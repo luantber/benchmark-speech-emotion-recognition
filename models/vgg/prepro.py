@@ -1,13 +1,19 @@
-from ser_bench.datasets.ravdess import RavdessDataset
-from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
+"""
+    Archivo con funciones de preprocesamiento
+"""
+# from ser_bench.datasets.ravdess import RavdessDataset
+# from torch.utils.data import DataLoader
+# import matplotlib.pyplot as plt
 
 import torchaudio
-import torch
+# import torch
 
 
 def preprocesar_audio(wav_file):
-    audio, sr = torchaudio.load(wav_file)
+    """
+        Obtiene un archivo .wav y retorna un spectrograma recortado
+    """
+    audio, _ = torchaudio.load(wav_file)  # pylint: disable=no-member
     audio = audio.mean(0, True)
 
     spec = torchaudio.transforms.MelSpectrogram(n_fft=600)(audio)
@@ -28,5 +34,3 @@ def preprocesar_audio(wav_file):
 
 # plt.show()
 # Its taking 3.9 segs real average
-#min :  705
-#min :  1266

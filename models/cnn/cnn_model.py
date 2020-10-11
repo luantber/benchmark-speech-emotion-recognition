@@ -38,7 +38,7 @@ class CNNModel(LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters())
         return optimizer
 
     def training_step(self, batch, batch_idx):
@@ -49,10 +49,10 @@ class CNNModel(LightningModule):
         acc = accuracy(predicted, y)
 
         loss = F.cross_entropy(y_hat, y)
+        print("Este es el"loss)
 
         self.log("train_loss", loss)
         self.log("train_acc", acc)
-
         return loss
 
     def validation_step(self, batch, batch_idx):
