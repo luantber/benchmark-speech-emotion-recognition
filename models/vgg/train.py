@@ -31,7 +31,7 @@ checkpoint_callback = ModelCheckpoint(
 trainer = pl.Trainer(
     gpus=1, default_root_dir="models/vgg",
     # resume_from_checkpoint='models/cnn/lightning_logs/version_0/checkpoints/epoch=23.ckpt',
-    max_epochs=50,
+    max_epochs=5,
     row_log_interval=15,
     checkpoint_callback=checkpoint_callback
 
