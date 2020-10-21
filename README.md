@@ -62,3 +62,8 @@ r.benchmark(model_cnn,"cnn1D")
 - numpy
 - pandas
 - pytorch_lightning
+
+### Algo
+from models.vgg.model import VGG
+from models.vgg.prepro import preprocesar_audio
+from ser_bench.datasets.ravdess import RavdessDataset
