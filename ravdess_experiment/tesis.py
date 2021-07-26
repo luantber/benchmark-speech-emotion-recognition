@@ -7,14 +7,17 @@ from sklearn.metrics import classification_report
 import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
-import time 
+import time
+
+import gc
+
 
 def train(model_name, x_train, y_train, x_test, y_test):
     log_dir = "logs/fit/" + model_name
 
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir, histogram_freq=1
-    )
+    # tensorboard_callback = tf.keras.callbacks.TensorBoard(
+    #     log_dir=log_dir, histogram_freq=1
+    # )
 
     model = get_model(model_name)
     model.fit(
@@ -22,7 +25,7 @@ def train(model_name, x_train, y_train, x_test, y_test):
         y_train,
         validation_data=(x_test, y_test),
         epochs=150,
-        batch_size=512,
+        batch_size=256,
         callbacks=[
             EarlyStopping(monitor="val_accuracy", patience=15),
             # tensorboard_callback,
@@ -32,6 +35,10 @@ def train(model_name, x_train, y_train, x_test, y_test):
     report = classification_report(
         y_test, np.argmax(model.predict(x_test), axis=1), output_dict=True
     )
+
+    del model
+    gc.collect()
+    tf.keras.backend.clear_session()
     return report["weighted avg"]["f1-score"]
 
 
@@ -42,7 +49,7 @@ def print_matrix(matrix):
     print("__________")
 
 
-iterations = 40
+iterations = 30
 modelos = ["A", "B", "C"]
 
 
@@ -63,9 +70,10 @@ for i in range(iterations):
             result = train(modelos[m_i], x_train, y_train, x_test, y_test)
             results_matrix[m_i][i][j] = result
             print("o")
+
         j += 1
-        print( time.time() - t1 )
+        print(time.time() - t1)
     print(results_matrix[:, i, :])
-    np.save("matrix_1", results_matrix)
+    np.save("matrix_3", results_matrix)
 
 print_matrix(results_matrix)

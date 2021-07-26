@@ -82,6 +82,7 @@ def get_model(model_name):
             loss="sparse_categorical_crossentropy",
             metrics=["accuracy"],
         )
+        print(model.summary())
         return model
     except:
         model = models[model_name]
@@ -90,5 +91,15 @@ def get_model(model_name):
             loss="sparse_categorical_crossentropy",
             metrics=["accuracy"],
         )
+        print(model.summary())
         model.save(model_name + ".h5")
     return model
+
+
+from tensorflow.keras.utils import plot_model
+
+modelitos = ["A", "B", "C"]
+for m in modelitos:
+    plot_model(
+        get_model(m), to_file=m + ".png", show_shapes=True, show_layer_names=False
+    )

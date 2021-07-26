@@ -5,6 +5,9 @@ import datetime
 import tensorflow as tf
 from sklearn.metrics import classification_report, confusion_matrix
 
+
+## This file just is a test for verifyng experiment 
+
 dataset = get_dataset(cache=True)
 train_x, train_y, test_x, test_y = dataset
 
